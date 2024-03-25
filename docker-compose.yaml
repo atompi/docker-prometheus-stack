@@ -28,6 +28,8 @@ services:
       - grafana_provisioning:/etc/grafana/provisioning
     ports:
       - 3000:3000
+    depends_on:
+      - renderer
 
   renderer:
     image: grafana/grafana-image-renderer:latest
