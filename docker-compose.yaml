@@ -1,0 +1,73 @@
+---
+version: '3.9'
+
+services:
+  prometheus:
+    image: quay.io/prometheus/prometheus:v2.50.1
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.retention.time=3650d
+      - --storage.tsdb.retention.size=4GB
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.wal-compression
+      - --web.enable-admin-api
+      - --web.enable-lifecycle
+    volumes:
+      - ./conf/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    restart: unless-stopped
+    env_file: ./conf/grafana/grafana.env
+    volumes:
+      - ./conf/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - grafana_data:/var/lib/grafana
+      - grafana_log:/var/log/grafana
+      - grafana_provisioning:/etc/grafana/provisioning
+    ports:
+      - 3000:3000
+
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    restart: unless-stopped
+
+  budget-exporter:
+    image: atompi/budget_exporter:v0.0.1
+    restart: unless-stopped
+    volumes:
+      - ./conf/budget_exporter/budget_exporter.yaml:/app/budget_exporter.yaml
+      - budget-exporter_data:/app/data
+
+volumes:
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/prometheus
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/grafana/data
+  grafana_log:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/grafana/log
+  grafana_provisioning:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/grafana/provisioning
+  budget-exporter_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/budget_exporter
