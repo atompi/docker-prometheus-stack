@@ -8,6 +8,23 @@ scrape_configs:
 - job_name: budget
   scrape_interval: 60m
   file_sd_configs:
-    - refresh_interval: 50m
-      files:
-      - /etc/prometheus/file_sd_configs/budget.yaml
+  - refresh_interval: 50m
+    files:
+    - /etc/prometheus/file_sd_configs/budget.yaml
+- job_name: probe_http_2xx
+  scrape_interval: 15s
+  metrics_path: probe
+  params:
+    module:
+    - http_2xx
+  file_sd_configs:
+  - refresh_interval: 1m
+    files:
+    - /etc/prometheus/file_sd_configs/probe_http_2xx.yaml
+  relabel_configs:
+  - source_labels: [__address__]
+    target_label: __param_target
+  - source_labels: [__param_target]
+    target_label: instance
+  - target_label: __address__
+    replacement: 192.168.130.133:9115

@@ -42,6 +42,10 @@ services:
       - ./conf/budget_exporter/budget_exporter.yaml:/app/budget_exporter.yaml
       - budget-exporter_data:/app/data
 
+  blackbox_exporter:
+    image: atompi/blackbox_exporter:v0.24.0
+    restart: unless-stopped
+
 volumes:
   prometheus_data:
     driver: local
