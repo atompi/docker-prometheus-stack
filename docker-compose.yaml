@@ -46,6 +46,13 @@ services:
     image: atompi/blackbox_exporter:v0.24.0
     restart: unless-stopped
 
+  webhookbot:
+    image: atompi/webhookbot:v1.1.0
+    restart: unless-stopped
+    volumes:
+      - ./conf/webhookbot/webhookbot.yaml:/app/webhookbot.yaml
+      - ./conf/webhookbot/tmpl:/app/tmpl
+
 volumes:
   prometheus_data:
     driver: local
