@@ -1,0 +1,167 @@
+{
+  "msg_type": "interactive",
+  "card": {
+    "config": {
+      "wide_screen_mode": true
+    },
+    "elements": [
+      {
+        "fields": [
+          {
+            "is_short": true,
+            "text": {
+              "content": "**⚓ Job: **\n{{.commonLabels.job}}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**🚨 当前状态：**\n{{.status}}",
+              "tag": "lark_md"
+            }
+          }
+        ],
+        "tag": "div"
+      },
+      {
+        "tag": "hr"
+      },
+    {{- range $alert := .alerts }}
+      {
+        "tag": "hr"
+      },
+      {
+        "fields": [
+          {
+            "is_short": true,
+            "text": {
+              "content": "**🚩 告警类型：**\n{{ $alert.labels.alertname }}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**🚦 告警级别：**\n{{ $alert.annotations.severity }}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": false,
+            "text": {
+              "content": "",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**🚨 当前状态：**\n{{ $alert.status }}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**🔢 事件 ID：**\n{{ $alert.fingerprint }}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": false,
+            "text": {
+              "content": "",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**🕐 开始时间：**\n{{ $alert.startsAt }}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**🕐 结束时间：**\n{{ $alert.endsAt }}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": false,
+            "text": {
+              "content": "",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**🚀 实例：**\n{{or $alert.labels.instance "None"}}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**📋 当前值：**\n{{ $alert.values.B }}",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": false,
+            "text": {
+              "content": "",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**📈 监控数据：**\n[generatorURL]({{ $alert.generatorURL }})",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": true,
+            "text": {
+              "content": "**📓 处理指引：**\n[runbooks]({{ $alert.annotations.runbook_url }})",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": false,
+            "text": {
+              "content": "",
+              "tag": "lark_md"
+            }
+          },
+          {
+            "is_short": false,
+            "text": {
+              "content": "**📋 详情：**\n{{ $alert.valueString }}",
+              "tag": "lark_md"
+            }
+          }
+        ],
+        "tag": "div"
+      },
+    {{- end }}
+      {
+        "tag": "hr"
+      },
+      {
+        "tag": "hr"
+      }
+    ],
+    "header": {
+      "template": "turquoise",
+      "title": {
+        "content": "恢复 ✅",
+        "tag": "lark_md"
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@ version: '3.9'
 
 services:
   prometheus:
-    image: quay.io/prometheus/prometheus:v2.50.1
+    image: quay.io/prometheus/prometheus:v2.51.2
     restart: unless-stopped
     command:
       - --config.file=/etc/prometheus/prometheus.yaml
@@ -18,7 +18,7 @@ services:
       - prometheus_data:/prometheus
 
   grafana:
-    image: grafana/grafana:10.4.0
+    image: grafana/grafana:10.4.2
     restart: unless-stopped
     env_file: ./conf/grafana/grafana.env
     volumes:
@@ -43,7 +43,7 @@ services:
       - budget-exporter_data:/app/data
 
   blackbox-exporter:
-    image: atompi/blackbox_exporter:v0.24.0
+    image: quay.io/prometheus/blackbox-exporter:v0.25.0
     restart: unless-stopped
 
   webhookbot:
