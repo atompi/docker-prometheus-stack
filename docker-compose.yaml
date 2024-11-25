@@ -1,14 +1,13 @@
 ---
-version: '3.9'
+name: prom-stack
 
 services:
   prometheus:
-    image: quay.io/prometheus/prometheus:v2.51.2
+    image: quay.io/prometheus/prometheus:v2.55.0
     restart: unless-stopped
     command:
       - --config.file=/etc/prometheus/prometheus.yaml
-      - --storage.tsdb.retention.time=3650d
-      - --storage.tsdb.retention.size=4GB
+      - --storage.tsdb.retention.time=1d
       - --storage.tsdb.path=/prometheus
       - --storage.tsdb.wal-compression
       - --web.enable-admin-api
@@ -19,7 +18,7 @@ services:
       - prometheus_data:/prometheus
 
   grafana:
-    image: grafana/grafana:10.4.2
+    image: grafana/grafana:11.3.0
     restart: unless-stopped
     env_file: ./conf/grafana/grafana.env
     volumes:
@@ -58,6 +57,70 @@ services:
       - ./conf/webhookbot/webhookbot.yaml:/app/webhookbot.yaml
       - ./conf/webhookbot/tmpl:/app/tmpl
 
+  vmstorage-1:
+    image: victoriametrics/vmstorage:v1.106.1-cluster
+    restart: unless-stopped
+    ports:
+      - 18482:8482
+      - 18400:8400
+      - 18401:8401
+    volumes:
+      - strgdata-1:/storage
+    command:
+      - "--storageDataPath=/storage"
+
+  vmstorage-2:
+    image: victoriametrics/vmstorage:v1.106.1-cluster
+    restart: unless-stopped
+    ports:
+      - 28482:8482
+      - 28400:8400
+      - 28401:8401
+    volumes:
+      - strgdata-2:/storage
+    command:
+      - "--storageDataPath=/storage"
+
+  vmstorage-3:
+    image: victoriametrics/vmstorage:v1.106.1-cluster
+    restart: unless-stopped
+    ports:
+      - 38482:8482
+      - 38400:8400
+      - 38401:8401
+    volumes:
+      - strgdata-3:/storage
+    command:
+      - "--storageDataPath=/storage"
+
+  vminsert:
+    image: victoriametrics/vminsert:v1.106.1-cluster
+    restart: unless-stopped
+    depends_on:
+      - "vmstorage-1"
+      - "vmstorage-2"
+      - "vmstorage-3"
+    command:
+      - "--storageNode=vmstorage-1:8400"
+      - "--storageNode=vmstorage-2:8400"
+      - "--storageNode=vmstorage-3:8400"
+    ports:
+      - 8480:8480
+
+  vmselect:
+    image: victoriametrics/vmselect:v1.106.1-cluster
+    restart: unless-stopped
+    depends_on:
+      - "vmstorage-1"
+      - "vmstorage-2"
+      - "vmstorage-3"
+    command:
+      - "--storageNode=vmstorage-1:8401"
+      - "--storageNode=vmstorage-2:8401"
+      - "--storageNode=vmstorage-3:8401"
+    ports:
+      - 8481:8481
+
 volumes:
   prometheus_data:
     driver: local
@@ -89,3 +152,26 @@ volumes:
       type: none
       o: bind
       device: ./data/budget_exporter
+  strgdata-1:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/victoriametrics/strgdata1
+  strgdata-2:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/victoriametrics/strgdata2
+  strgdata-3:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/victoriametrics/strgdata3
+
+networks:
+  default:
+    external: true
+    name: compose
