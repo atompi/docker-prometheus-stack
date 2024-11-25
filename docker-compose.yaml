@@ -13,6 +13,7 @@ services:
       - --storage.tsdb.wal-compression
       - --web.enable-admin-api
       - --web.enable-lifecycle
+      - --web.enable-remote-write-receiver
     volumes:
       - ./conf/prometheus:/etc/prometheus
       - prometheus_data:/prometheus
@@ -45,6 +46,10 @@ services:
   blackbox-exporter:
     image: quay.io/prometheus/blackbox-exporter:v0.25.0
     restart: unless-stopped
+    command:
+      - --config.file=/config/blackbox.yaml
+    volumes:
+      - ./conf/blackbox:/config
 
   webhookbot:
     image: atompi/webhookbot:v1.1.0

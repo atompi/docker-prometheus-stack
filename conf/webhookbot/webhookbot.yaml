@@ -7,7 +7,7 @@ core:
     enable: true
     path: /metrics
   log:
-    path: "./logs/webhookbot.log"
+    path: "/dev/stdout"
     level: "INFO"
 
 bots:
