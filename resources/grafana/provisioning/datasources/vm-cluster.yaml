@@ -8,11 +8,20 @@ datasources:
     isDefault: true
     jsonData:
       vmuiUrl: http://vmselect:8481/select/0/vmui
-  - name: prometheus
+  - name: Prometheus
     type: prometheus
+    uid: prometheus
     access: proxy
     url: http://vmselect:8481/select/0/prometheus
     isDefault: false
     jsonData:
       prometheusType: Prometheus
       prometheusVersion: 2.55.0
+  - name: Alertmanager
+    type: alertmanager
+    uid: alertmanager
+    url: http://alertmanager:9093/
+    access: proxy
+    jsonData:
+      handleGrafanaManagedAlerts: false
+      implementation: prometheus

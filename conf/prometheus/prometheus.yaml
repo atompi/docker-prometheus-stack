@@ -1,23 +1,38 @@
 global:
   evaluation_interval: 15s
   scrape_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules/vm-cluster/*.yaml
+  - /etc/prometheus/rules/k8s/*.yaml
+
 remote_write:
   - url: http://vminsert:8480/insert/0/prometheus/api/v1/write
+
 scrape_configs:
-- job_name: probe_http_2xx
-  scrape_interval: 15s
-  metrics_path: probe
-  params:
-    module:
-    - http_2xx
-  file_sd_configs:
-  - refresh_interval: 1m
-    files:
-    - /etc/prometheus/file_sd_configs/probe_http_2xx.yaml
-  relabel_configs:
-  - source_labels: [__address__]
-    target_label: __param_target
-  - source_labels: [__param_target]
-    target_label: instance
-  - target_label: __address__
-    replacement: blackbox-exporter:9115
+  - job_name: probe_http_2xx
+    scrape_interval: 15s
+    metrics_path: probe
+    params:
+      module:
+      - http_2xx
+    file_sd_configs:
+    - refresh_interval: 1m
+      files:
+      - /etc/prometheus/file_sd_configs/probe_http_2xx.yaml
+    relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: blackbox-exporter:9115
+
+alerting:
+  alertmanagers:
+  - path_prefix: /
+    scheme: http
+    static_configs:
+    - targets:
+      - alertmanager:9093
+    api_version: v2
