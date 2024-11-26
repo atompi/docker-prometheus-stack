@@ -2,25 +2,9 @@
 name: prom-stack
 
 services:
-  prometheus:
-    image: quay.io/prometheus/prometheus:v2.55.0
-    restart: unless-stopped
-    command:
-      - --config.file=/etc/prometheus/prometheus.yaml
-      - --storage.tsdb.retention.time=1d
-      - --storage.tsdb.path=/prometheus
-      - --storage.tsdb.wal-compression
-      - --web.enable-admin-api
-      - --web.enable-lifecycle
-      - --web.enable-remote-write-receiver
-    volumes:
-      - ./conf/prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-
   grafana:
     image: grafana/grafana:11.3.0
     restart: unless-stopped
-    env_file: ./conf/grafana/grafana.env
     volumes:
       - ./conf/grafana/grafana.ini:/etc/grafana/grafana.ini
       - grafana_data:/var/lib/grafana
@@ -53,12 +37,8 @@ services:
   vmstorage-1:
     image: victoriametrics/vmstorage:v1.106.1-cluster
     restart: unless-stopped
-    ports:
-      - 18482:8482
-      - 18400:8400
-      - 18401:8401
     volumes:
-      - strgdata-1:/storage
+      - vmstorage-1_data:/storage
     command:
       - --storageDataPath=/storage
       - --retentionPeriod=6
@@ -66,12 +46,8 @@ services:
   vmstorage-2:
     image: victoriametrics/vmstorage:v1.106.1-cluster
     restart: unless-stopped
-    ports:
-      - 28482:8482
-      - 28400:8400
-      - 28401:8401
     volumes:
-      - strgdata-2:/storage
+      - vmstorage-2_data:/storage
     command:
       - --storageDataPath=/storage
       - --retentionPeriod=6
@@ -79,12 +55,8 @@ services:
   vmstorage-3:
     image: victoriametrics/vmstorage:v1.106.1-cluster
     restart: unless-stopped
-    ports:
-      - 38482:8482
-      - 38400:8400
-      - 38401:8401
     volumes:
-      - strgdata-3:/storage
+      - vmstorage-3_data:/storage
     command:
       - --storageDataPath=/storage
       - --retentionPeriod=6
@@ -93,13 +65,13 @@ services:
     image: victoriametrics/vminsert:v1.106.1-cluster
     restart: unless-stopped
     depends_on:
-      - "vmstorage-1"
-      - "vmstorage-2"
-      - "vmstorage-3"
+      - vmstorage-1
+      - vmstorage-2
+      - vmstorage-3
     command:
-      - "--storageNode=vmstorage-1:8400"
-      - "--storageNode=vmstorage-2:8400"
-      - "--storageNode=vmstorage-3:8400"
+      - --storageNode=vmstorage-1:8400
+      - --storageNode=vmstorage-2:8400
+      - --storageNode=vmstorage-3:8400
     ports:
       - 8480:8480
 
@@ -107,23 +79,32 @@ services:
     image: victoriametrics/vmselect:v1.106.1-cluster
     restart: unless-stopped
     depends_on:
-      - "vmstorage-1"
-      - "vmstorage-2"
-      - "vmstorage-3"
+      - vmstorage-1
+      - vmstorage-2
+      - vmstorage-3
     command:
-      - "--storageNode=vmstorage-1:8401"
-      - "--storageNode=vmstorage-2:8401"
-      - "--storageNode=vmstorage-3:8401"
+      - --storageNode=vmstorage-1:8401
+      - --storageNode=vmstorage-2:8401
+      - --storageNode=vmstorage-3:8401
     ports:
       - 8481:8481
 
+  vmagent:
+    image: victoriametrics/vmagent:v1.106.1
+    restart: unless-stopped
+    depends_on:
+      - vminsert
+    ports:
+      - 8429:8429
+    volumes:
+      - ./conf/prometheus:/etc/prometheus
+      - vmagent_data:/vmagentdata
+    command:
+      - --promscrape.config=/etc/prometheus/vmagent.yaml
+      - --promscrape.fileSDCheckInterval=60s
+      - --remoteWrite.url=http://vminsert:8480/insert/0/prometheus/
+
 volumes:
-  prometheus_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./data/prometheus
   grafana_data:
     driver: local
     driver_opts:
@@ -142,24 +123,30 @@ volumes:
       type: none
       o: bind
       device: ./data/grafana/provisioning
-  strgdata-1:
+  vmstorage-1_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./data/victoriametrics/strgdata1
-  strgdata-2:
+      device: ./data/victoriametrics/vmstorage1
+  vmstorage-2_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./data/victoriametrics/strgdata2
-  strgdata-3:
+      device: ./data/victoriametrics/vmstorage2
+  vmstorage-3_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./data/victoriametrics/strgdata3
+      device: ./data/victoriametrics/vmstorage3
+  vmagent_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/victoriametrics/vmagent
 
 networks:
   default:
