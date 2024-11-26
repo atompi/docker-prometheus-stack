@@ -1,9 +1,12 @@
 apiVersion: 1
 
 providers:
-- name: Prometheus
+- name: victoriametrics-cluster
   orgId: 1
   folder: 'victoriametrics-cluster'
+  disableDeletion: false
+  allowUiUpdates: false
+  updateIntervalSeconds: 30
   type: file
   options:
     path: /var/lib/grafana/dashboards/victoriametrics-cluster

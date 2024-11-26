@@ -19,6 +19,20 @@ services:
     image: grafana/grafana-image-renderer:latest
     restart: unless-stopped
 
+  webhookbot:
+    image: atompi/webhookbot:v1.1.0
+    restart: unless-stopped
+    volumes:
+      - ./conf/webhookbot/webhookbot.yaml:/app/webhookbot.yaml
+      - ./conf/webhookbot/tmpl:/app/tmpl
+
+  webhook-tester:
+    image: tarampampam/webhook-tester:1.1.0
+    restart: unless-stopped
+    command: serve --port 8080 --create-session 00000000-0000-0000-0000-000000000000
+    ports:
+      - 8080:8080
+
   blackbox-exporter:
     image: quay.io/prometheus/blackbox-exporter:v0.25.0
     restart: unless-stopped
@@ -26,13 +40,6 @@ services:
       - --config.file=/config/blackbox.yaml
     volumes:
       - ./conf/blackbox:/config
-
-  webhookbot:
-    image: atompi/webhookbot:v1.1.0
-    restart: unless-stopped
-    volumes:
-      - ./conf/webhookbot/webhookbot.yaml:/app/webhookbot.yaml
-      - ./conf/webhookbot/tmpl:/app/tmpl
 
   vmstorage-1:
     image: victoriametrics/vmstorage:v1.106.1-cluster
@@ -103,6 +110,30 @@ services:
       - --promscrape.config=/etc/prometheus/vmagent.yaml
       - --promscrape.fileSDCheckInterval=60s
       - --remoteWrite.url=http://vminsert:8480/insert/0/prometheus/
+
+  vmalert:
+    image: victoriametrics/vmalert:v1.106.1
+    restart: unless-stopped
+    ports:
+      - 8880:8880
+    volumes:
+      - ./conf/vmalert/rules:/etc/alerts
+    command:
+      - --datasource.url=http://vmselect:8481/select/0/prometheus
+      - --remoteRead.url=http://vmselect:8481/select/0/prometheus
+      - --remoteWrite.url=http://vminsert:8480/insert/0/prometheus
+      - --notifier.url=http://alertmanager:9093/
+      - --rule=/etc/alerts/**/*.yaml
+      - --external.url=https://mon.atompi.cc
+      - --external.alert.source=explore?orgId=1&left={"datasource":"VictoriaMetrics - cluster","queries":[{"expr":{{.Expr|jsonEscape|queryEscape}},"refId":"A"}],"range":{"from":"{{ .ActiveAt.UnixMilli }}","to":"now"}}
+
+  alertmanager:
+    image: quay.io/prometheus/alertmanager:v0.27.0
+    restart: unless-stopped
+    volumes:
+      - ./conf/alertmanager/alertmanager.yaml:/config/alertmanager.yaml
+    command:
+      - "--config.file=/config/alertmanager.yaml"
 
 volumes:
   grafana_data:

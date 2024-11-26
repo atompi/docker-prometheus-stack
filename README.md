@@ -16,17 +16,3 @@ cp -r resources/grafana/data/dashboards data/grafana/data/
 
 docker compose restart grafana
 ```
-
-## Data source
-
-- Default
-
-```
-vm-cluster
-```
-
-- Prometheus
-
-```
-http://vmselect:8481/select/0/prometheus
-```
