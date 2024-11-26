@@ -35,13 +35,6 @@ services:
     image: grafana/grafana-image-renderer:latest
     restart: unless-stopped
 
-  budget-exporter:
-    image: atompi/budget_exporter:v0.0.1
-    restart: unless-stopped
-    volumes:
-      - ./conf/budget_exporter/budget_exporter.yaml:/app/budget_exporter.yaml
-      - budget-exporter_data:/app/data
-
   blackbox-exporter:
     image: quay.io/prometheus/blackbox-exporter:v0.25.0
     restart: unless-stopped
@@ -67,7 +60,8 @@ services:
     volumes:
       - strgdata-1:/storage
     command:
-      - "--storageDataPath=/storage"
+      - --storageDataPath=/storage
+      - --retentionPeriod=6
 
   vmstorage-2:
     image: victoriametrics/vmstorage:v1.106.1-cluster
@@ -79,7 +73,8 @@ services:
     volumes:
       - strgdata-2:/storage
     command:
-      - "--storageDataPath=/storage"
+      - --storageDataPath=/storage
+      - --retentionPeriod=6
 
   vmstorage-3:
     image: victoriametrics/vmstorage:v1.106.1-cluster
@@ -91,7 +86,8 @@ services:
     volumes:
       - strgdata-3:/storage
     command:
-      - "--storageDataPath=/storage"
+      - --storageDataPath=/storage
+      - --retentionPeriod=6
 
   vminsert:
     image: victoriametrics/vminsert:v1.106.1-cluster
@@ -146,12 +142,6 @@ volumes:
       type: none
       o: bind
       device: ./data/grafana/provisioning
-  budget-exporter_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./data/budget_exporter
   strgdata-1:
     driver: local
     driver_opts:
