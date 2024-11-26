@@ -105,11 +105,12 @@ services:
       - 8429:8429
     volumes:
       - ./conf/prometheus:/etc/prometheus
-      - vmagent_data:/vmagentdata
+      - vmagent_data:/vmagent-remotewrite-data
     command:
       - --promscrape.config=/etc/prometheus/vmagent.yaml
       - --promscrape.fileSDCheckInterval=60s
       - --remoteWrite.url=http://vminsert:8480/insert/0/prometheus/
+      - --remoteWrite.maxDiskUsagePerURL=1GB
 
   vmalert:
     image: victoriametrics/vmalert:v1.106.1
