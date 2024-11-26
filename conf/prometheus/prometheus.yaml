@@ -3,8 +3,7 @@ global:
   scrape_interval: 15s
 
 rule_files:
-  - /etc/prometheus/rules/vm-cluster/*.yaml
-  - /etc/prometheus/rules/k8s/*.yaml
+  - /etc/prometheus/rules/*.yaml
 
 remote_write:
   - url: http://vminsert:8480/insert/0/prometheus/api/v1/write

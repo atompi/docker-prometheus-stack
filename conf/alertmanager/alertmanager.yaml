@@ -38,5 +38,5 @@ route:
   repeat_interval: 12h
   routes:
   - matchers:
-    - alertname =~ "InfoInhibitor|Watchdog|etcdMemberCommunicationSlow"
+    - alertname =~ "InfoInhibitor|Watchdog"
     receiver: "null"
