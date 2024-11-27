@@ -165,3 +165,20 @@ groups:
             is saturated by more than 90% and vminsert won't be able to keep up.\n
             This usually means that more vminsert or vmstorage nodes must be added to the cluster in order to increase
             the total number of vminsert -> vmstorage links."
+
+      - alert: TooHighChurnRate
+        expr: |
+          (
+          sum(rate(vm_tenant_timeseries_created_total[5m])) by(accountID,projectID)
+          /
+          sum(rate(vm_tenant_inserted_rows_total[5m])) by(accountID,projectID)
+          ) > 0.1
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Churn rate is more than 10% for the last 15m"
+          description: "VM constantly creates new time series in the tenant: {{ $labels.accountID }}:{{ $labels.projectID }}.\n
+                  This effect is known as Churn Rate.\n
+                  High Churn Rate is tightly connected with database performance and may
+                  result in unexpected OOM's or slow queries."

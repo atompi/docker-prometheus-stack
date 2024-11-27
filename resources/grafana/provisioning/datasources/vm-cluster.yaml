@@ -4,15 +4,15 @@ datasources:
   - name: VictoriaMetrics - cluster
     type: victoriametrics-datasource
     access: proxy
-    url: http://vmselect:8481/select/0/prometheus
+    url: http://vmselect:8481/select/multitenant/prometheus
     isDefault: true
     jsonData:
-      vmuiUrl: http://vmselect:8481/select/0/vmui
+      vmuiUrl: http://vmselect:8481/select/multitenant/vmui
   - name: Prometheus
     type: prometheus
     uid: prometheus
     access: proxy
-    url: http://vmselect:8481/select/0/prometheus
+    url: http://vmselect:8481/select/multitenant/prometheus
     isDefault: false
     jsonData:
       prometheusType: Prometheus

@@ -6,7 +6,7 @@ rule_files:
   - /etc/prometheus/rules/*.yaml
 
 remote_write:
-  - url: http://vminsert:8480/insert/0/prometheus/api/v1/write
+  - url: http://vminsert:8480/insert/multitenant/prometheus/api/v1/write
 
 scrape_configs:
   - job_name: probe_http_2xx

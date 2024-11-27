@@ -22,18 +22,33 @@ scrape_configs:
   - job_name: 'vmagent'
     static_configs:
       - targets: ['vmagent:8429']
+        labels:
+          vm_account_id: 1
+          vm_project_id: 0
   - job_name: 'vmalert'
     static_configs:
       - targets: ['vmalert:8880']
+        labels:
+          vm_account_id: 1
+          vm_project_id: 0
   - job_name: 'vminsert'
     static_configs:
       - targets: ['vminsert:8480']
+        labels:
+          vm_account_id: 1
+          vm_project_id: 0
   - job_name: 'vmselect'
     static_configs:
       - targets: ['vmselect:8481']
+        labels:
+          vm_account_id: 1
+          vm_project_id: 0
   - job_name: 'vmstorage'
     static_configs:
       - targets: ['vmstorage-1:8482', 'vmstorage-2:8482', 'vmstorage-3:8482']
+        labels:
+          vm_account_id: 1
+          vm_project_id: 0
 
   - job_name: 'alertmanager'
     static_configs:
@@ -42,6 +57,8 @@ scrape_configs:
           cluster: victoriametrics
           namespace: external
           service: victoriametrics-alertmanager
+          vm_account_id: 1
+          vm_project_id: 1
   - job_name: 'grafana'
     static_configs:
       - targets: ['grafana:3000']
@@ -49,3 +66,5 @@ scrape_configs:
           cluster: victoriametrics
           namespace: external
           service: victoriametrics-grafana
+          vm_account_id: 1
+          vm_project_id: 1
