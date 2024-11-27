@@ -34,3 +34,18 @@ scrape_configs:
   - job_name: 'vmstorage'
     static_configs:
       - targets: ['vmstorage-1:8482', 'vmstorage-2:8482', 'vmstorage-3:8482']
+
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+        labels:
+          cluster: victoriametrics
+          namespace: external
+          service: victoriametrics-alertmanager
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+        labels:
+          cluster: victoriametrics
+          namespace: external
+          service: victoriametrics-grafana
