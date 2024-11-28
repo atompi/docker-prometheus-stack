@@ -133,6 +133,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./conf/alertmanager/alertmanager.yaml:/config/alertmanager.yaml
+      - alertmanager_data:/alertmanager
     command:
       - "--config.file=/config/alertmanager.yaml"
 
@@ -179,6 +180,12 @@ volumes:
       type: none
       o: bind
       device: ./data/victoriametrics/vmagent
+  alertmanager_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/alertmanager
 
 networks:
   default:
